@@ -1,3 +1,4 @@
+package writingTools;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -8,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.print.PrinterException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +21,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -32,35 +34,37 @@ public class Notepad {
     //    CONSTANTS    //
     /////////////////////
     
-    final public static String PROGRAM_TITLE     = "Notepad - ";
+    final public static String PROGRAM_TITLE     = "MathBox - ";
     final public static String DEFAULT_FILE_NAME = "File.txt";
     
     final public static int DEFAULT_WIDTH  = 400;
     final public static int DEFAULT_HEIGHT = 600;
     
-    public final static String txtDoc = "Text Document";
-    public final static String txt    = "txt";
+    final public static String txtDoc = "Text Document";
+    final public static String txt    = "txt";
     
     /////////////////////
     //    VARIABLES    //
     /////////////////////
     
     // FONT STUFF ///////////////////////
-    private static Font       font;
+    private  static Font       font;
     private static int        fontStyle;
     private static int        fontSize;
     /////////////////////////////////////
     
     // DISPLAY STUFF /////////////////
-    private static JFrame    	frame;    // THE DISPLAY
-    private static JFileChooser jfc;   // For file choosing
+    protected static JFrame    	frame;    // THE DISPLAY
+    protected static JFileChooser jfc;   // For file choosing
     //////////////////////////////////
     
     // THE TOP MENU BAR //////////////
     private static MenuBar   menuBar;  // The menu bar itself
-    private static Menu      fileMenu; // The "File" section
+    protected static Menu    fileMenu; // The "File" section
+    private static MenuItem  miSaveAs;   // save as option
     private static MenuItem  miSave;   // save option
     private static MenuItem  miOpen;   // open option
+    private static MenuItem  miPrint;
     private static MenuItem  miExit;   // exit option
     //////////////////////////////////
     
@@ -70,25 +74,52 @@ public class Notepad {
     //////////////////////////////////
     
     // Notepad stuff //////////////////
-    private static JTextArea   textArea;    // FOR WRITING
-    private static JScrollPane sp;          // Scrolling for notepad
+    protected static JTextPane   textArea;    // FOR WRITING
+    protected static JScrollPane sp;          // Scrolling for notepad
     ///////////////////////////////////
     
     private static int keyCode;
     
+    public Notepad(){
+    	main(null);
+    }
+    
     public static void main(String[] args) {
-
-        // Setup the display
+    	initFrame();
         initDisplay();
-        
-        // Setup what the buttons do
+        finishFrame();
         initActionListeners();
-        
     }
     
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
+    
+    protected static void setTitle(final String TITLE){
+    	frame.setTitle(TITLE + currentFile.getName());
+    }
+    
+    private static void initFrame()
+    {    	
+        // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
+        frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));
+    }
+    
+    private static void finishFrame()
+    {
+        // ADD THE MenuBar to the display
+        frame.setMenuBar(menuBar);
+        // ADD THE Notepad to the display
+        frame.add(sp, BorderLayout.CENTER);
+        
+        // REFRESH
+        frame.validate();
+        frame.repaint();
+    }
     
     private static void initDisplay()
     {
@@ -96,13 +127,6 @@ public class Notepad {
         fontSize  	= 14;
         font 		= new Font(Font.MONOSPACED, fontStyle, fontSize);
     	
-        // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
-        frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-        frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));
-        
         // INITIALIZING OTHER DISPLAY STUFF
         jfc    = new JFileChooser();
         
@@ -127,37 +151,38 @@ public class Notepad {
         fileMenu.setLabel("File"); // setting the name
         
         // INITIALIZING THE OPTIONS IN THE FILE SECTION
-        miSave = new MenuItem("Save As");
-        miOpen = new MenuItem("Open");
-        miExit = new MenuItem("Exit");
+        miSaveAs = new MenuItem( "Save As");
+        miSave = new MenuItem(   "Save  (Ctrl + S)");
+        miOpen = new MenuItem(   "Open  (Ctrl + O)");
+        miPrint = new MenuItem(  "Print (Ctrl + P)");
+        miExit = new MenuItem(   "Exit  (Esc)");
         
         // ADDING THE OPTIONS TO THE FILE SECTION
+        fileMenu.add(miSaveAs);
         fileMenu.add(miSave);
         fileMenu.add(miOpen);
+        fileMenu.add(miPrint);
+        fileMenu.addSeparator();
         fileMenu.add(miExit);
         
         // ADDING THE FILE SECTION TO THE MENU BAR
         menuBar.add(fileMenu);
         
-        // ADD THE MenuBar to the display
-        frame.setMenuBar(menuBar);
-        
         ////////////////////////////////////////////////////////////////////////
         
         // INITIALIZING THE TEXT AREA (area we type in)
-        textArea = new JTextArea();
+        textArea = new JTextPane();
         textArea.setFont(font);
+        //textArea.
+        
+        //converterModel = new KeywordConvertingModel(new File("src/mathwords.txt"));
+
+        //textArea.setText(converterModel.toString()); // mostly for testing
         
         // INITIALIZING THE SCROLLING STUFF (having it hold the text area) 
         // - It's a Notepad now!
         sp = new JScrollPane(textArea);
         
-        // ADD THE Notepad to the display
-        frame.add(sp, BorderLayout.CENTER);
-        
-        // REFRESH
-        frame.validate();
-        frame.repaint();
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -167,17 +192,24 @@ public class Notepad {
     private static void initActionListeners()
     {
         // Add a reaction to the SAVE button
+        miSaveAs.addActionListener(saveAsAction);
+        
         miSave.addActionListener(saveAction);
         
         // Add an action to the OPEN button
         miOpen.addActionListener(openAction);
-      
+        
+        miPrint.addActionListener(printAction);
+        
         miExit.addActionListener(exitAction);
         
         // Add "special keyboard commands"
-        frame.addKeyListener(keyboardSpecialCommands);
+        if(frame != null){
+        	frame.addKeyListener(keyboardSpecialCommands);
+        }
+
         textArea.addKeyListener(keyboardSpecialCommands);
-    }   
+    }
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
@@ -202,6 +234,13 @@ public class Notepad {
     }
     
     public static ActionListener saveAction = new ActionListener(){
+    	@Override
+        public void actionPerformed(ActionEvent e) {
+    		saveOp(currentFile);
+        }
+    };
+    
+    public static ActionListener saveAsAction = new ActionListener(){
     	@Override
         public void actionPerformed(ActionEvent e) {
 
@@ -273,11 +312,11 @@ public class Notepad {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
-    private static KeyListener keyboardSpecialCommands = new KeyListener(){
+    protected static KeyListener keyboardSpecialCommands = new KeyListener(){
 
         @Override
         public void keyTyped(KeyEvent e) {
-            
+
         }
 
         @Override
@@ -293,9 +332,11 @@ public class Notepad {
             	else if(keyCode == KeyEvent.VK_O){
             		openOp();
             	}
+            	else if(keyCode == KeyEvent.VK_P){
+            		printOp();
+            	}
             }
-            
-            if(keyCode == KeyEvent.VK_ESCAPE){
+            else if(keyCode == KeyEvent.VK_ESCAPE){
             	exitOp();
             }
 
@@ -307,7 +348,33 @@ public class Notepad {
         }
     	
     };
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    private static ActionListener printAction = new ActionListener(){
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			printOp();
+		}
+    };
     
+    private static void printOp(){
+    	try {
+			textArea.print();
+		} catch (PrinterException e) {
+			//e.printStackTrace();
+		}
+    	
+//    	PrinterJob job 		= PrinterJob.getPrinterJob();
+//    	PageFormat format 	= job.pageDialog(job.defaultPage());
+//    	job.setPrintable(textArea.);
+//    	if(job.printDialog()){
+//    		try {
+//    			job.setJobName(currentFile.getName());
+//				job.print();
+//			} catch (PrinterException e) {
+//				e.printStackTrace();
+//			}
+//    	}
+    }
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     

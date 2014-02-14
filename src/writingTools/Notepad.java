@@ -48,58 +48,56 @@ public class Notepad {
     /////////////////////
     
     // FONT STUFF ///////////////////////
-    private  static Font       font;
-    private static int        fontStyle;
-    private static int        fontSize;
+    private Font       font;
+    private int        fontStyle;
+    private int        fontSize;
     /////////////////////////////////////
     
     // DISPLAY STUFF /////////////////
-    protected static JFrame    	frame;    // THE DISPLAY
-    protected static JFileChooser jfc;   // For file choosing
+    protected JFrame    	frame;    // THE DISPLAY
+    protected JFileChooser jfc;   // For file choosing
     //////////////////////////////////
     
     // THE TOP MENU BAR //////////////
-    private static MenuBar   menuBar;  // The menu bar itself
-    protected static Menu    fileMenu; // The "File" section
-    private static MenuItem  miSaveAs;   // save as option
-    private static MenuItem  miSave;   // save option
-    private static MenuItem  miOpen;   // open option
-    private static MenuItem  miPrint;
-    private static MenuItem  miExit;   // exit option
+    private MenuBar   menuBar;  // The menu bar itself
+    protected Menu    fileMenu; // The "File" section
+    private MenuItem  miSaveAs;   // save as option
+    private MenuItem  miSave;   // save option
+    private MenuItem  miOpen;   // open option
+    private MenuItem  miPrint;
+    private MenuItem  miExit;   // exit option
     //////////////////////////////////
     
     // FILE STUFF ////////////////////
-    private static FileReader  in;          // Used for opening files
-    private static File        currentFile; // The FILE that we're modifying
+    private FileReader  in;          // Used for opening files
+    private File        currentFile; // The FILE that we're modifying
     //////////////////////////////////
     
     // Notepad stuff //////////////////
-    protected static JTextPane   textArea;    // FOR WRITING
-    protected static JScrollPane sp;          // Scrolling for notepad
+    protected JTextPane   textArea;    // FOR WRITING
+    protected JScrollPane sp;          // Scrolling for notepad
     ///////////////////////////////////
     
-    private static int keyCode;
-    
     public Notepad(){
-    	main(null);
-    }
-    
-    public static void main(String[] args) {
     	initFrame();
         initDisplay();
         finishFrame();
         initActionListeners();
     }
     
+    public static void main(String[] args) {
+    	new Notepad();
+    }
+    
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
-    protected static void setTitle(final String TITLE){
+    protected void setTitle(final String TITLE){
     	frame.setTitle(TITLE + currentFile.getName());
     }
     
-    private static void initFrame()
+    private void initFrame()
     {    	
         // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
         frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
@@ -109,7 +107,7 @@ public class Notepad {
         frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));
     }
     
-    private static void finishFrame()
+    private void finishFrame()
     {
         // ADD THE MenuBar to the display
         frame.setMenuBar(menuBar);
@@ -121,7 +119,7 @@ public class Notepad {
         frame.repaint();
     }
     
-    private static void initDisplay()
+    private void initDisplay()
     {
         fontStyle 	= Font.PLAIN;
         fontSize  	= 14;
@@ -189,7 +187,7 @@ public class Notepad {
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////    
    
-    private static void initActionListeners()
+    private void initActionListeners()
     {
         // Add a reaction to the SAVE button
         miSaveAs.addActionListener(saveAsAction);
@@ -213,7 +211,7 @@ public class Notepad {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
-    private static void saveOp(File f)
+    private void saveOp(File f)
     {
         // Attempt to do something
         try {
@@ -233,14 +231,14 @@ public class Notepad {
         }
     }
     
-    public static ActionListener saveAction = new ActionListener(){
+    private ActionListener saveAction = new ActionListener(){
     	@Override
         public void actionPerformed(ActionEvent e) {
     		saveOp(currentFile);
         }
     };
     
-    public static ActionListener saveAsAction = new ActionListener(){
+    private ActionListener saveAsAction = new ActionListener(){
     	@Override
         public void actionPerformed(ActionEvent e) {
 
@@ -272,7 +270,7 @@ public class Notepad {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
-    private static void openOp(){
+    private void openOp(){
         // Open up the file selection screen, if "Open" is pressed
         if(jfc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
         {
@@ -303,7 +301,7 @@ public class Notepad {
          frame.setTitle(PROGRAM_TITLE + currentFile.getName());
     }
     
-    private static ActionListener openAction = new ActionListener(){
+    private ActionListener openAction = new ActionListener(){
     	 @Override
          public void actionPerformed(ActionEvent e) {
              openOp();
@@ -312,7 +310,7 @@ public class Notepad {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
-    protected static KeyListener keyboardSpecialCommands = new KeyListener(){
+    private KeyListener keyboardSpecialCommands = new KeyListener(){
 
         @Override
         public void keyTyped(KeyEvent e) {
@@ -320,26 +318,8 @@ public class Notepad {
         }
 
         @Override
-        public void keyPressed(KeyEvent e) {
-                                 
-            keyCode = e.getKeyCode();
-            
-            if(e.isControlDown())
-            {
-            	if(keyCode == KeyEvent.VK_S){
-            		saveOp(currentFile);
-            	}
-            	else if(keyCode == KeyEvent.VK_O){
-            		openOp();
-            	}
-            	else if(keyCode == KeyEvent.VK_P){
-            		printOp();
-            	}
-            }
-            else if(keyCode == KeyEvent.VK_ESCAPE){
-            	exitOp();
-            }
-
+        public void keyPressed(KeyEvent e) { 
+            keyPressedOp(e);
         }
 
         @Override
@@ -348,15 +328,35 @@ public class Notepad {
         }
     	
     };
+    
+    protected void keyPressedOp(KeyEvent e){
+        int keyCode = e.getKeyCode();
+        
+        if(e.isControlDown())
+        {
+        	if(keyCode == KeyEvent.VK_S){
+        		saveOp(currentFile);
+        	}
+        	else if(keyCode == KeyEvent.VK_O){
+        		openOp();
+        	}
+        	else if(keyCode == KeyEvent.VK_P){
+        		printOp();
+        	}
+        }
+        else if(keyCode == KeyEvent.VK_ESCAPE){
+        	exitOp();
+        }
+    }
     /////////////////////////////////////////////////////////////////////////////////////////////////////
-    private static ActionListener printAction = new ActionListener(){
+    private ActionListener printAction = new ActionListener(){
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			printOp();
 		}
     };
     
-    private static void printOp(){
+    private void printOp(){
     	try {
 			textArea.print();
 		} catch (PrinterException e) {
@@ -378,14 +378,14 @@ public class Notepad {
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     
-	private static ActionListener exitAction = new ActionListener(){
+	private ActionListener exitAction = new ActionListener(){
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			exitOp();
 		}
 	};
 	
-	private static void exitOp(){
+	private void exitOp(){
 		
 		int n = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(n == JOptionPane.YES_OPTION){

@@ -34,7 +34,7 @@ public class Notepad {
     //    CONSTANTS    //
     /////////////////////
     
-    final public static String PROGRAM_TITLE     = "MathBox - ";
+    final public static String PROGRAM_TITLE     = "Notepad - ";
     final public static String DEFAULT_FILE_NAME = "File.txt";
     
     final public static int DEFAULT_WIDTH  = 400;
@@ -65,6 +65,7 @@ public class Notepad {
     private MenuItem  miSave;   // save option
     private MenuItem  miOpen;   // open option
     private MenuItem  miPrint;
+    private MenuItem  miNewWindow; // opens a new window
     private MenuItem  miExit;   // exit option
     //////////////////////////////////
     
@@ -101,7 +102,7 @@ public class Notepad {
     {    	
         // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
         frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
         frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));
@@ -149,17 +150,19 @@ public class Notepad {
         fileMenu.setLabel("File"); // setting the name
         
         // INITIALIZING THE OPTIONS IN THE FILE SECTION
-        miSaveAs = new MenuItem( "Save As");
-        miSave = new MenuItem(   "Save  (Ctrl + S)");
-        miOpen = new MenuItem(   "Open  (Ctrl + O)");
-        miPrint = new MenuItem(  "Print (Ctrl + P)");
-        miExit = new MenuItem(   "Exit  (Esc)");
+        miSaveAs 	= new MenuItem("Save As");
+        miSave 		= new MenuItem("Save       (Ctrl + S)");
+        miOpen 		= new MenuItem("Open       (Ctrl + O)");
+        miPrint 	= new MenuItem("Print      (Ctrl + P)");
+        miNewWindow = new MenuItem("New Window (Ctrl + N)");
+        miExit 		= new MenuItem("Exit       (Esc)");
         
         // ADDING THE OPTIONS TO THE FILE SECTION
         fileMenu.add(miSaveAs);
         fileMenu.add(miSave);
         fileMenu.add(miOpen);
         fileMenu.add(miPrint);
+        fileMenu.add(miNewWindow);
         fileMenu.addSeparator();
         fileMenu.add(miExit);
         
@@ -198,6 +201,8 @@ public class Notepad {
         miOpen.addActionListener(openAction);
         
         miPrint.addActionListener(printAction);
+        
+        miNewWindow.addActionListener(newWindowAction);
         
         miExit.addActionListener(exitAction);
         
@@ -343,6 +348,9 @@ public class Notepad {
         	else if(keyCode == KeyEvent.VK_P){
         		printOp();
         	}
+        	else if(keyCode == KeyEvent.VK_N){
+        		newWindowOp();
+        	}
         }
         else if(keyCode == KeyEvent.VK_ESCAPE){
         	exitOp();
@@ -375,6 +383,19 @@ public class Notepad {
 //			}
 //    	}
     }
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+	private ActionListener newWindowAction = new ActionListener(){
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			newWindowOp();
+		}
+	};
+	
+	protected void newWindowOp(){
+		new Notepad();
+	}
     
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     

@@ -1,14 +1,22 @@
 package writingTools;
 
+//import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Font;
+//import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
+//import java.awt.PopupMenu;
+//import java.awt.SystemTray;
+//import java.awt.Toolkit;
+//import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+//import java.awt.event.MouseEvent;
+//import java.awt.event.MouseListener;
 import java.awt.print.PrinterException;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,6 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -103,6 +112,7 @@ public class Notepad {
         // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
         frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setIconImage(new ImageIcon(getClass().getResource("Icon.png")).getImage());
         frame.setVisible(true);
         frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));
@@ -419,4 +429,72 @@ public class Notepad {
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//	public static void createSystemTrayIcon() {
+//
+//	    if (SystemTray.isSupported()) {
+//	        SystemTray tray = SystemTray.getSystemTray();
+//	        Image image =
+//	            Toolkit.getDefaultToolkit()
+//	            .getImage(
+//	                    System.getenv("MY_PROGRAM_HOME") + "Icon.ico");
+//
+//	        PopupMenu popup = new PopupMenu();
+//
+//	        final MenuItem menuExit = new MenuItem("Quit");
+//
+//	        MouseListener mouseListener =
+//	            new MouseListener() {
+//	            public void mouseClicked(MouseEvent e) {
+//	            }
+//
+//	            public void mouseEntered(MouseEvent e) {
+//	            }
+//
+//	            public void mouseExited(MouseEvent e) {
+//	            }
+//
+//	            public void mousePressed(MouseEvent e) {
+//	            }
+//
+//	            public void mouseReleased(MouseEvent e) {
+//	            }
+//	        };
+//
+//	        ActionListener exitListener =
+//	            new ActionListener() {
+//	            public void actionPerformed(ActionEvent e) {
+//	                Runtime r = Runtime.getRuntime();
+//	                System.out.println("Exiting...");
+//	                r.exit(0);
+//	            }
+//	        };
+//
+//	        menuExit.addActionListener(exitListener);
+//	        popup.add(menuExit);
+//
+//	        final TrayIcon trayIcon = new TrayIcon(image, "My program", popup);
+//
+//	        ActionListener actionListener =
+//	            new ActionListener() {
+//	                public void actionPerformed(ActionEvent e) {
+//	                    trayIcon.displayMessage("Notepad ","version: 1.0",
+//	                            TrayIcon.MessageType.INFO);
+//	            }
+//	        };
+//
+//	        trayIcon.setImageAutoSize(true);
+//	        trayIcon.addActionListener(actionListener);
+//	        trayIcon.addMouseListener(mouseListener);
+//
+//	        try {
+//	            tray.add(trayIcon);
+//	        } catch (AWTException e) {
+//	            System.err.println("TrayIcon could not be added.");
+//	        }
+//
+//	    } else {
+//	        //  System Tray is not supported
+//	    }
+//	}
+	
 }

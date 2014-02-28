@@ -112,7 +112,9 @@ public class Notepad {
         // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]
         frame = new JFrame(PROGRAM_TITLE + DEFAULT_FILE_NAME);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setIconImage(new ImageIcon(getClass().getResource("Icon.png")).getImage());
+        try{
+        	frame.setIconImage(new ImageIcon(getClass().getResource("Icon.png")).getImage());
+        }catch(NullPointerException npe){}
         frame.setVisible(true);
         frame.setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         frame.setLocation((int)(Math.random() * 800), (int)(Math.random() * 400));

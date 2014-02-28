@@ -103,6 +103,10 @@ public class Notepad {
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
     
+    protected void addMenuToMenuBar(Menu menu){
+    	menuBar.add(menu);
+    }
+    
     protected void setTitle(final String TITLE){
     	frame.setTitle(TITLE + currentFile.getName());
     }

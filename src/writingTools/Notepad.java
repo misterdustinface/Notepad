@@ -1,37 +1,27 @@
 package writingTools;
 
-//import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Font;
-//import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
-//import java.awt.PopupMenu;
-//import java.awt.SystemTray;
-//import java.awt.Toolkit;
-//import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-//import java.awt.event.MouseEvent;
-//import java.awt.event.MouseListener;
-import java.awt.print.PrinterException;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import operations.ExitOp;
+import operations.NewInstanceOp;
+import operations.OpenOp;
+import operations.PrintOp;
+import operations.SaveAsOp;
+import operations.SaveOp;
 
 /**
  * This is a notepad program.  It reads .txt files.
@@ -48,9 +38,6 @@ public class Notepad {
     
     final public static int DEFAULT_WIDTH  = 400;
     final public static int DEFAULT_HEIGHT = 600;
-    
-    final public static String txtDoc = "Text Document";
-    final public static String txt    = "txt";
     
     /////////////////////
     //    VARIABLES    //
@@ -78,8 +65,16 @@ public class Notepad {
     private MenuItem  miExit;   // exit option
     //////////////////////////////////
     
+    // OPERATIONS ////////////////////
+    private SaveOp save;
+    private OpenOp open;
+    private SaveAsOp saveAs;
+    private ExitOp exit;
+    private PrintOp print;
+    private NewInstanceOp newWindow;
+    //////////////////////////////////
+    
     // FILE STUFF ////////////////////
-    private FileReader  in;          // Used for opening files
     private File        currentFile; // The FILE that we're modifying
     //////////////////////////////////
     
@@ -107,8 +102,8 @@ public class Notepad {
     	menuBar.add(menu);
     }
     
-    protected void setTitle(final String TITLE){
-    	frame.setTitle(TITLE + currentFile.getName());
+    protected void resetTitle(){
+    	frame.setTitle(PROGRAM_TITLE + currentFile.getName());
     }
     
     private void initFrame()
@@ -141,14 +136,6 @@ public class Notepad {
         fontStyle 	= Font.PLAIN;
         fontSize  	= 14;
         font 		= new Font(Font.MONOSPACED, fontStyle, fontSize);
-    	
-        // INITIALIZING OTHER DISPLAY STUFF
-        jfc    = new JFileChooser();
-        
-        // SET FILE TYPE FILTERS
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(txtDoc, txt);  
-        // Put the filter on the file chooser
-        jfc.setFileFilter(filter);
         
         ////////////////////////////////////////////////////////////////////////
         
@@ -190,11 +177,6 @@ public class Notepad {
         // INITIALIZING THE TEXT AREA (area we type in)
         textArea = new JTextPane();
         textArea.setFont(font);
-        //textArea.
-        
-        //converterModel = new KeywordConvertingModel(new File("src/mathwords.txt"));
-
-        //textArea.setText(converterModel.toString()); // mostly for testing
         
         // INITIALIZING THE SCROLLING STUFF (having it hold the text area) 
         // - It's a Notepad now!
@@ -208,126 +190,25 @@ public class Notepad {
    
     private void initActionListeners()
     {
-        // Add a reaction to the SAVE button
-        miSaveAs.addActionListener(saveAsAction);
-        
-        miSave.addActionListener(saveAction);
-        
-        // Add an action to the OPEN button
-        miOpen.addActionListener(openAction);
-        
-        miPrint.addActionListener(printAction);
-        
-        miNewWindow.addActionListener(newWindowAction);
-        
-        miExit.addActionListener(exitAction);
+    	save = new SaveOp(frame, textArea, currentFile);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(OpenOp.txtDoc, OpenOp.txt);  
+    	open = new OpenOp(frame, textArea, currentFile, filter);
+    	saveAs = new SaveAsOp(frame, currentFile, save);
+    	print = new PrintOp(textArea);
+    	newWindow = new NewInstanceOp(this);
+    	exit = new ExitOp(frame);
+    	
+        miSaveAs.addActionListener(saveAs.getActionListener());   
+        miSave.addActionListener(save.getActionListener());
+        miOpen.addActionListener(open.getActionListener());
+        miPrint.addActionListener(print.getActionListener());
+        miNewWindow.addActionListener(newWindow.getActionListener());
+        miExit.addActionListener(exit.getActionListener());
         
         // Add "special keyboard commands"
-        if(frame != null){
-        	frame.addKeyListener(keyboardSpecialCommands);
-        }
-
+        frame.addKeyListener(keyboardSpecialCommands);
         textArea.addKeyListener(keyboardSpecialCommands);
     }
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////////////// 
-    
-    private void saveOp(File f)
-    {
-        // Attempt to do something
-        try {
-            // Make a bunch of shit that will allow us to write to the file
-            FileWriter     fw = new FileWriter(f.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            // Write the text that's in our notepad to the file
-            bw.write(textArea.getText());
-
-            // Close the "stream"
-            bw.close();
-
-        // If the attempt fails, display the error message - then give up.
-        } catch (IOException ioe) {
-            JOptionPane.showMessageDialog(frame, "PROBLEM SAVING");
-        }
-    }
-    
-    private ActionListener saveAction = new ActionListener(){
-    	@Override
-        public void actionPerformed(ActionEvent e) {
-    		saveOp(currentFile);
-        }
-    };
-    
-    private ActionListener saveAsAction = new ActionListener(){
-    	@Override
-        public void actionPerformed(ActionEvent e) {
-
-            // Open up the Save file screen, if "Save" is pressed
-            if(jfc.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
-            {
-               
-                // Get the selected file
-                currentFile = jfc.getSelectedFile();
-
-                // if file doesn't exist, create it
-                if (!currentFile.exists()) {
-                    try {
-                        currentFile.createNewFile();
-                    } catch (IOException ex) {
-                         JOptionPane.showMessageDialog(frame, "PROBLEM CREATING FILE");
-                    }
-                }
-
-                // Saves the file
-                saveOp(currentFile);
-
-            }
-            
-            // Set the top title to the name of the document
-            frame.setTitle(PROGRAM_TITLE + currentFile.getName());
-        }
-    };
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////////////// 
-    
-    private void openOp(){
-        // Open up the file selection screen, if "Open" is pressed
-        if(jfc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
-        {
-            currentFile = jfc.getSelectedFile();
-        }
-            
-        // Attempt to do something
-        try {               
-            // Make an inFile "stream" with the selected file
-            in = new FileReader(currentFile);
-            
-             // Attempt to read in data [inFile all at once]
-            try {
-                textArea.read(in, currentFile);
-                
-            // If the attempt fails, display the error message - then give up.    
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(frame, "PROBLEM READING FILE");
-            }
-            
-        // If the attempt fails, display the error message - then give up.    
-        } catch (FileNotFoundException ex) {
-            // User likely pressed "Cancel"
-            //dialog.showMessageDialog(frame, "PROBLEM SETTING UP A FILE READER FOR THE FILE");
-        }
-        
-        // Set the top title to the name of the document
-         frame.setTitle(PROGRAM_TITLE + currentFile.getName());
-    }
-    
-    private ActionListener openAction = new ActionListener(){
-    	 @Override
-         public void actionPerformed(ActionEvent e) {
-             openOp();
-    	 }
-    };
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////// 
     
@@ -356,151 +237,20 @@ public class Notepad {
         if(e.isControlDown())
         {
         	if(keyCode == KeyEvent.VK_S){
-        		saveOp(currentFile);
+        		save.executeOp();
         	}
         	else if(keyCode == KeyEvent.VK_O){
-        		openOp();
+        		open.executeOp();
         	}
         	else if(keyCode == KeyEvent.VK_P){
-        		printOp();
+        		print.executeOp();
         	}
         	else if(keyCode == KeyEvent.VK_N){
-        		newWindowOp();
+        		newWindow.executeOp();
         	}
         }
         else if(keyCode == KeyEvent.VK_ESCAPE){
-        	exitOp();
+        	exit.executeOp();
         }
     }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    private ActionListener printAction = new ActionListener(){
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			printOp();
-		}
-    };
-    
-    private void printOp(){
-    	try {
-			textArea.print();
-		} catch (PrinterException e) {
-			//e.printStackTrace();
-		}
-    	
-//    	PrinterJob job 		= PrinterJob.getPrinterJob();
-//    	PageFormat format 	= job.pageDialog(job.defaultPage());
-//    	job.setPrintable(textArea.);
-//    	if(job.printDialog()){
-//    		try {
-//    			job.setJobName(currentFile.getName());
-//				job.print();
-//			} catch (PrinterException e) {
-//				e.printStackTrace();
-//			}
-//    	}
-    }
-    
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-	private ActionListener newWindowAction = new ActionListener(){
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			newWindowOp();
-		}
-	};
-	
-	protected void newWindowOp(){
-		new Notepad();
-	}
-    
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-	private ActionListener exitAction = new ActionListener(){
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			exitOp();
-		}
-	};
-	
-	private void exitOp(){
-		
-		int n = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-		if(n == JOptionPane.YES_OPTION){
-			frame.setFocusable(false);
-			frame.setVisible(false);
-			frame.setEnabled(false);
-			frame.dispose();
-		}
-	}
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//	public static void createSystemTrayIcon() {
-//
-//	    if (SystemTray.isSupported()) {
-//	        SystemTray tray = SystemTray.getSystemTray();
-//	        Image image =
-//	            Toolkit.getDefaultToolkit()
-//	            .getImage(
-//	                    System.getenv("MY_PROGRAM_HOME") + "Icon.ico");
-//
-//	        PopupMenu popup = new PopupMenu();
-//
-//	        final MenuItem menuExit = new MenuItem("Quit");
-//
-//	        MouseListener mouseListener =
-//	            new MouseListener() {
-//	            public void mouseClicked(MouseEvent e) {
-//	            }
-//
-//	            public void mouseEntered(MouseEvent e) {
-//	            }
-//
-//	            public void mouseExited(MouseEvent e) {
-//	            }
-//
-//	            public void mousePressed(MouseEvent e) {
-//	            }
-//
-//	            public void mouseReleased(MouseEvent e) {
-//	            }
-//	        };
-//
-//	        ActionListener exitListener =
-//	            new ActionListener() {
-//	            public void actionPerformed(ActionEvent e) {
-//	                Runtime r = Runtime.getRuntime();
-//	                System.out.println("Exiting...");
-//	                r.exit(0);
-//	            }
-//	        };
-//
-//	        menuExit.addActionListener(exitListener);
-//	        popup.add(menuExit);
-//
-//	        final TrayIcon trayIcon = new TrayIcon(image, "My program", popup);
-//
-//	        ActionListener actionListener =
-//	            new ActionListener() {
-//	                public void actionPerformed(ActionEvent e) {
-//	                    trayIcon.displayMessage("Notepad ","version: 1.0",
-//	                            TrayIcon.MessageType.INFO);
-//	            }
-//	        };
-//
-//	        trayIcon.setImageAutoSize(true);
-//	        trayIcon.addActionListener(actionListener);
-//	        trayIcon.addMouseListener(mouseListener);
-//
-//	        try {
-//	            tray.add(trayIcon);
-//	        } catch (AWTException e) {
-//	            System.err.println("TrayIcon could not be added.");
-//	        }
-//
-//	    } else {
-//	        //  System Tray is not supported
-//	    }
-//	}
-	
 }

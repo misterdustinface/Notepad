@@ -106,6 +106,10 @@ public class Notepad {
     	frame.setTitle(PROGRAM_TITLE + currentFile.getName());
     }
     
+    protected String getCurrentFileName(){
+    	return currentFile.getName();
+    }
+    
     private void initFrame()
     {    	
         // CREATING FRAME WITH ALL OF IT'S GOODIES [DISPLAY]

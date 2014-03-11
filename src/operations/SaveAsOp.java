@@ -7,19 +7,21 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import accessories.SharedFile;
+
 
 public class SaveAsOp extends Operation{
 
 	private JFileChooser jfc;
 	private SaveOp save;
 	private JFrame frame;
-	private File   currentFile;
+	private SharedFile sharedFile;
 	
-	public SaveAsOp(JFrame frame, File file, SaveOp save) {
+	public SaveAsOp(JFrame frame, SaveOp save, SharedFile sharedFile) {
 		this.save = save;
 		this.frame = frame;
-		this.currentFile = file;
-		jfc    = new JFileChooser();
+		jfc    		= new JFileChooser();
+		this.sharedFile = sharedFile;
 	}
 
 	@Override
@@ -27,9 +29,8 @@ public class SaveAsOp extends Operation{
 		// Open up the Save file screen, if "Save" is pressed
         if(jfc.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION)
         {
-           
             // Get the selected file
-            currentFile = jfc.getSelectedFile();
+            File currentFile = jfc.getSelectedFile();
 
             // if file doesn't exist, create it
             if (!currentFile.exists()) {
@@ -39,14 +40,13 @@ public class SaveAsOp extends Operation{
                      JOptionPane.showMessageDialog(frame, "PROBLEM CREATING FILE");
                 }
             }
-
+            sharedFile.set(currentFile);
+            
             // Saves the file
-            save.executeOp(currentFile);
-
+            save.executeOp();
+            // Reset the top title
+            frame.setTitle(currentFile.toString());
         }
-        
-        // Reset the top title
-        frame.setTitle(currentFile.toString());
 	}
 
 }

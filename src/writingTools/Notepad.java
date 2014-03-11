@@ -16,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import accessories.SharedFile;
 import operations.ExitOp;
 import operations.NewInstanceOp;
 import operations.OpenOp;
@@ -75,7 +76,7 @@ public class Notepad {
     //////////////////////////////////
     
     // FILE STUFF ////////////////////
-    private File        currentFile; // The FILE that we're modifying
+    private SharedFile        sharedFile; // The FILE that we're modifying
     //////////////////////////////////
     
     // Notepad stuff //////////////////
@@ -103,11 +104,11 @@ public class Notepad {
     }
     
     protected void resetTitle(){
-    	frame.setTitle(PROGRAM_TITLE + currentFile.getName());
+    	frame.setTitle(PROGRAM_TITLE + sharedFile.toString());
     }
     
     protected String getCurrentFileName(){
-    	return currentFile.getName();
+    	return sharedFile.toString();
     }
     
     private void initFrame()
@@ -144,7 +145,7 @@ public class Notepad {
         ////////////////////////////////////////////////////////////////////////
         
         // SETTING THE CURRENT FILE TO DEFAULT
-        currentFile = new File(DEFAULT_FILE_NAME);
+        sharedFile = new SharedFile(new File(DEFAULT_FILE_NAME));
         
         ////////////////////////////////////////////////////////////////////////
         
@@ -194,10 +195,10 @@ public class Notepad {
    
     private void initActionListeners()
     {
-    	save = new SaveOp(frame, textArea, currentFile);
+    	save = new SaveOp(frame, textArea, sharedFile);
         FileNameExtensionFilter filter = new FileNameExtensionFilter(OpenOp.txtDoc, OpenOp.txt);  
-    	open = new OpenOp(frame, textArea, currentFile, filter);
-    	saveAs = new SaveAsOp(frame, currentFile, save);
+    	open = new OpenOp(frame, textArea, sharedFile, filter);
+    	saveAs = new SaveAsOp(frame, save, sharedFile);
     	print = new PrintOp(textArea);
     	newWindow = new NewInstanceOp(this);
     	exit = new ExitOp(frame);

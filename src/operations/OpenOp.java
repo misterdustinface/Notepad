@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import accessories.SharedFile;
+
 public class OpenOp extends Operation{
 
     final public static String txtDoc = "Text Document";
@@ -20,20 +22,20 @@ public class OpenOp extends Operation{
     private JFrame		 frame;
 	private JFileChooser jfc;
 	private JTextPane    textArea;
-	private File 		 currentFile;
+	private SharedFile 	 sharedFile;
 	
-	public OpenOp(JFrame frame, JTextPane textArea, File file){
+	public OpenOp(JFrame frame, JTextPane textArea, SharedFile sharedFile){
         jfc    = new JFileChooser();
         this.frame = frame;
         this.textArea = textArea;
-        this.currentFile = file;
+        this.sharedFile = sharedFile;
 	}
 	
-	public OpenOp(JFrame frame, JTextPane textArea, File file, FileNameExtensionFilter filter){
+	public OpenOp(JFrame frame, JTextPane textArea, SharedFile sharedFile, FileNameExtensionFilter filter){
         jfc    = new JFileChooser();
         this.frame = frame;
         this.textArea = textArea;
-        this.currentFile = file;
+        this.sharedFile = sharedFile;
         
         // SET FILE TYPE FILTERS
         // Put the filter on the file chooser
@@ -44,33 +46,38 @@ public class OpenOp extends Operation{
 	public void executeOp() {
 		// TODO Auto-generated method stub
         // Open up the file selection screen, if "Open" is pressed
+		File currentFile;
         if(jfc.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
         {
             currentFile = jfc.getSelectedFile();
-        }
             
-        // Attempt to do something
-        try {               
-            // Make an inFile "stream" with the selected file
-            in = new FileReader(currentFile);
-            
-             // Attempt to read in data [inFile all at once]
-            try {
-                textArea.read(in, currentFile);
+            // Attempt to do something
+            try {               
+                // Make an inFile "stream" with the selected file
+                in = new FileReader(currentFile);
+                
+                 // Attempt to read in data [inFile all at once]
+                try {
+                    textArea.read(in, currentFile);
+                    
+                // If the attempt fails, display the error message - then give up.    
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(frame, "PROBLEM READING FILE");
+                }
                 
             // If the attempt fails, display the error message - then give up.    
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(frame, "PROBLEM READING FILE");
+            } catch (FileNotFoundException ex) {
+                // User likely pressed "Cancel"
+                //dialog.showMessageDialog(frame, "PROBLEM SETTING UP A FILE READER FOR THE FILE");
             }
             
-        // If the attempt fails, display the error message - then give up.    
-        } catch (FileNotFoundException ex) {
-            // User likely pressed "Cancel"
-            //dialog.showMessageDialog(frame, "PROBLEM SETTING UP A FILE READER FOR THE FILE");
+            // Set the top title to the name of the document
+            frame.setTitle(currentFile.toString());
+            
+            sharedFile.set(currentFile);
         }
-        
-        // Set the top title to the name of the document
-        frame.setTitle(currentFile.toString());
+            
+
 	}
 
 }

@@ -13,7 +13,9 @@ public class ExitOp extends Operation{
 	
 	@Override
 	public void executeOp() {
-		int n = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		int n = JOptionPane.showConfirmDialog(frame,  "Are you sure you want to exit?\n"
+													+ "All unsaved progress will be lost.", 
+													"Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if(n == JOptionPane.YES_OPTION){
 			frame.setFocusable(false);
 			frame.setVisible(false);

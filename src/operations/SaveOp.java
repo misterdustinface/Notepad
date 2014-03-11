@@ -1,7 +1,6 @@
 package operations;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -9,21 +8,18 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 
+import accessories.SharedFile;
+
 public class SaveOp extends Operation{
 
 	private JFrame 		frame;
 	private JTextPane 	textArea;
-	private File 		file;
+	private SharedFile 	file;
 	
-	public SaveOp(JFrame frame, JTextPane textArea, File file){
+	public SaveOp(JFrame frame, JTextPane textArea, SharedFile file){
 		this.frame 		= frame;
 		this.textArea 	= textArea;
 		this.file  		= file;
-	}
-	
-	public void executeOp(File currentFile){
-		this.file = currentFile;
-		executeOp();
 	}
 	
 	@Override

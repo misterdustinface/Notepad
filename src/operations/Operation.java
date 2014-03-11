@@ -12,9 +12,7 @@ public abstract class Operation{
 		}
 	};
 	
-	public Operation(){
-		
-	}
+	public Operation(){} // CONSTRUCTOR
 	
 	public ActionListener getActionListener(){
 		return actionListener;

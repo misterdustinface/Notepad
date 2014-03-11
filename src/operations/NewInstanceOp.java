@@ -1,5 +1,9 @@
 package operations;
 
+/**
+ * The most abstracted "factory" object imaginable.
+ * @author Dustin
+ */
 public class NewInstanceOp extends Operation{
 
 	private Class<?>  c;

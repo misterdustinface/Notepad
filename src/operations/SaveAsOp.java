@@ -41,7 +41,7 @@ public class SaveAsOp extends Operation{
             }
 
             // Saves the file
-            save.executeOp();
+            save.executeOp(currentFile);
 
         }
         

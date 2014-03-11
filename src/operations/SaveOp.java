@@ -21,6 +21,11 @@ public class SaveOp extends Operation{
 		this.file  		= file;
 	}
 	
+	public void executeOp(File currentFile){
+		this.file = currentFile;
+		executeOp();
+	}
+	
 	@Override
 	public void executeOp() {
         // Attempt to do something
